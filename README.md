@@ -1,30 +1,29 @@
-# 🛡️ Evaluation of Mitigation for DIO Replay Attacks in NS-3 RPL Networks
+# Evaluation of Mitigation for DIO Replay Attacks in NS-3 RPL Networks
 
-This project implements and evaluates a **lightweight mitigation strategy** against **DIO (Destination-Oriented Directed Acyclic Graph Information Object) Replay Attacks** within static RPL (Routing Protocol for Low-Power and Lossy Networks) networks using the NS-3 simulator.
+This report summarizes the design and evaluation of a lightweight mitigation strategy against DIO (Destination-Oriented Directed Acyclic Graph Information Object) Replay Attacks within static RPL (Routing Protocol for Low-Power and Lossy Networks) networks using the NS-3 simulator.
 
----
 
 ## 1. Attack and Mitigation Overview
 
 ### 1.1 The Threat: DIO Replay
 
-An adversary captures a legitimate DIO control message (containing a static sequence number, `seq=1` in this simulation) and repeatedly re-broadcasts it. This forces legitimate nodes to process outdated routing information, leading to network instability and excessive resource consumption.
+DIO messages are critical for forming the network topology. An adversary performs a replay attack by repeatedly re-broadcasting a captured, legitimate DIO message. This forces legitimate nodes to process outdated routing information, which leads to network instability and excessive resource consumption.
 
 ### 1.2 Mitigation Strategy: Sequence-Number Filtering
 
-[cite_start]The defense uses **Sequence-Number Filtering**, a low-overhead technique suitable for resource-constrained IoT devices[cite: 72].
+The defense uses Sequence-Number Filtering, a low-overhead technique suitable for resource-constrained IoT devices. It works by ensuring that a node processes a new DIO only if its sequence number is strictly greater than the last valid one seen from that neighbor.
 
-* [cite_start]**Logic:** Each node tracks the last valid sequence number received from a neighbor[cite: 51]. [cite_start]Any subsequent packet from that neighbor carrying a sequence number that is **not strictly greater** (i.e., equal or less) is dropped as a replay[cite: 54].
+* **Logic:** Each node tracks the latest DIO sequence number received from each neighbor. Any subsequent packet from that neighbor carrying a sequence number that is not strictly greater (i.e., old or equal) is dropped as a replay.
 
----
+
 
 ## 2. Simulation Results and Log Analysis
 
-The simulation ran for 10 seconds, comparing the baseline scenario (`--mitigation=false`) against the protected scenario (`--mitigation=true`).
+The simulation compares the baseline (`--mitigation=false`) against the protected scenario (`--mitigation=true`). The attacker continuously replays a DIO with `seq=1`.
 
 ### 2.1 Baseline Scenario (`baseline.txt`)
 
-[cite_start]**Observation:** All replayed DIOs are accepted[cite: 99]. The nodes are continuously exposed to the attack traffic.
+**Observation:** All replayed DIOs are accepted. The nodes are continuously exposed to the attack traffic.
 
 | Time (s) | Node | Log Output | Outcome |
 | :---: | :---: | :--- | :--- |
@@ -36,7 +35,7 @@ The simulation ran for 10 seconds, comparing the baseline scenario (`--mitigatio
 
 ### 2.2 Protected Scenario (`mitigated.txt`)
 
-[cite_start]**Observation:** Replayed DIOs are immediately dropped after the initial acceptance[cite: 100], neutralizing the attack.
+**Observation:** Replayed DIOs are dropped, ensuring correct DODAG formation and reducing control traffic.
 
 | Time (s) | Node | Log Output | Outcome |
 | :---: | :---: | :--- | :--- |
@@ -46,29 +45,28 @@ The simulation ran for 10 seconds, comparing the baseline scenario (`--mitigatio
 | **2.5** | Node 2 | `...Node 2 DROPPED replayed DIO seq=1 at 2.5` | **DROPPED!** |
 | 3.1 - 9.1 | Attacker | `Replay attacker sending fake DIO...` | Nodes continue to drop. |
 
----
+
 
 ## 3. Visualization: Impact on Node Acceptance
 
-The graph below plots the **Cumulative Accepted DIO Messages** over time, clearly demonstrating the performance difference.
+The graph below plots the Cumulative Accepted DIO Messages over time, clearly demonstrating the performance difference.
 
-*(Note: You must run `rpl_dynamic_visualization.py` on your machine to generate this image, which should be placed in the same directory as this file.)*
+<img width="512" height="307" alt="rpl_image" src="https://github.com/user-attachments/assets/8cb90031-0a39-49f1-a910-856d5df6d52d" />
 
-![Impact of RPL DIO Replay Mitigation on Node Acceptance](rpl_dio_replay_mitigation_plot.png)
 
 | Scenario | Final Accepted Count | Analysis |
 | :--- | :--- | :--- |
 | **No Mitigation** (Red Line) | **~16** | The count rises linearly. The attack is fully successful, wasting node resources. |
 | **With Mitigation** (Green Line) | **2** | The count **plateaus immediately** after the initial packets are processed. The attack is neutralized. |
 
----
+
 
 ## 4. Visualization Script and Execution
 
-The script below is used to parse the log files (`baseline.txt`, `mitigated.txt`) and generate the comparison plot.
+The visualization is generated by a Python script that parses the log files.
 
 ### Script Execution
 
 ```bash
-# Ensure you are in your Python virtual environment (venv)
+# Execute the script after generating log files:
 python rpl_dynamic_visualization.py --mitigation_false_log baseline.txt --mitigation_true_log mitigated.txt
