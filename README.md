@@ -45,6 +45,17 @@ The simulation compares the baseline (`--mitigation=false`) against the protecte
 | **2.5** | Node 2 | `...Node 2 DROPPED replayed DIO seq=1 at 2.5` | **DROPPED!** |
 | 3.1 - 9.1 | Attacker | `Replay attacker sending fake DIO...` | Nodes continue to drop. |
 
+### 2.3 No Attacker 
+
+**Observation:** In the absence of replays, every scheduled DIO is accepted. The mitigation logic is not activated to drop packets, confirming that the defense does not interfere with legitimate network updates, representing the expected stable operation of the network.
+
+| Time (s) | Node | Log Output | Outcome |
+| :---: | :---: | :--- | :--- |
+| **1.0** | Node 1 | `...Node 1 accepted DIO seq=1 at 1` | Accepted (Initial) |
+| **1.5** | Node 2 | `...Node 2 accepted DIO seq=1 at 1.5` | Accepted (Initial) |
+| **2.0** | Node 1 | `...Node 1 DROPPED replayed DIO seq=1 at 2` | Accepted (New Update) |
+| **2.5** | Node 2 | `...Node 2 DROPPED replayed DIO seq=1 at 2.5` | Accepted (New Update) |
+| **3.0** | Node 1 | `...Node 1 accepted UNIQUE DIO seq=3 at 3` | Accepted (New Update) |
 
 
 ## 3. Visualization: Impact on Node Acceptance
