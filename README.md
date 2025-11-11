@@ -24,6 +24,7 @@ The simulation compares the baseline (`--mitigation=false`) against the protecte
 ### 2.1 Baseline Scenario (`baseline.txt`)
 
 **Observation:** All replayed DIOs are accepted. The nodes are continuously exposed to the attack traffic.
+**Command:** `NS_LOG=RplDioReplaySim ./scratch/ns3-dev-rpl-dio-replay-sim-default --mitigation=false`
 
 | Time (s) | Node | Log Output | Outcome |
 | :---: | :---: | :--- | :--- |
@@ -36,6 +37,7 @@ The simulation compares the baseline (`--mitigation=false`) against the protecte
 ### 2.2 Protected Scenario (`mitigated.txt`)
 
 **Observation:** Replayed DIOs are dropped, ensuring correct DODAG formation and reducing control traffic.
+**Command:** `NS_LOG=RplDioReplaySim ./scratch/ns3-dev-rpl-dio-replay-sim-default --mitigation=true`
 
 | Time (s) | Node | Log Output | Outcome |
 | :---: | :---: | :--- | :--- |
@@ -48,6 +50,8 @@ The simulation compares the baseline (`--mitigation=false`) against the protecte
 ### 2.3 No Attacker 
 
 **Observation:** In the absence of replays, every scheduled DIO is accepted. The mitigation logic is not activated to drop packets, confirming that the defense does not interfere with legitimate network updates, representing the expected stable operation of the network.
+
+**Command:** `NS_LOG=RplDioNoAttackSim ./scratch/ns3-dev-rpl-dio-replay-sim-without-attacker-default --simTime=5.0`
 
 | Time (s) | Node | Log Output | Outcome |
 | :---: | :---: | :--- | :--- |
